@@ -1,4 +1,4 @@
-Registro (cadastro) dos servidores públicos civis do poder executivo federal, tanto da administração direta quanto indireta (incluindo autarquias; por exemplo, universidades). Também inclui ocupantes de cargos comissionados. Não inclui registro de servidores aposentados inativos, terceirizados, empregados de empresas públicas, militares e servidores de outros poderes e esferas.
+Registro (cadastro) dos servidores públicos militares do poder executivo federal, tanto da administração direta quanto indireta. Também inclui ocupantes de cargos comissionados. Não inclui registro de militares reformados (aposentados), terceirizados, empregados de empresas públicas, servidores civis e servidores de outros poderes e esferas.
 
 Os registros se repetem em cada mês (um servidor ativo de fev/2015 a nov/2018 terá um registro para cada mês, com os dados referentes àquele mês (cargo ocupado, etc).
 
