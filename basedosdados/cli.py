@@ -154,15 +154,22 @@ def cli_table():
     type=click.Path(exists=True),
 )
 @click.option(
-    "--if_exists",
+    "--if_folder_exists",
     default="raise",
     help="[raise|replace|pass] actions if table folder exists",
+)
+@click.option(
+    "--if_table_config_exists",
+    default="raise",
+    help="[raise|replace|pass] actions if table config files already exist",
 )
 @click.pass_context
 def init_table(ctx, dataset_id, table_id, data_sample_path, if_exists):
 
     t = Table(table_id=table_id, dataset_id=dataset_id, **ctx.obj).init(
-        data_sample_path=data_sample_path, if_exists=if_exists
+        data_sample_path=data_sample_path,
+        if_folder_exists=if_folder_exists,
+        if_table_config_exists=if_table_config_exists,
     )
 
     click.echo(
@@ -192,7 +199,7 @@ def init_table(ctx, dataset_id, table_id, data_sample_path, if_exists):
     help="[True|False] whether folder has partitions",
 )
 @click.option(
-    "--if_exists",
+    "--if_table_exists",
     default="raise",
     help="[raise|replace|pass] actions if table exists",
 )
@@ -200,6 +207,16 @@ def init_table(ctx, dataset_id, table_id, data_sample_path, if_exists):
     "--force_dataset",
     default=True,
     help="Whether to automatically create the dataset folders and in BigQuery",
+)
+@click.option(
+    "--if_storage_data_exists",
+    default="raise",
+    help="[raise|replace|pass] actions if table data already exists at Storage",
+)
+@click.option(
+    "--if_table_config_exists",
+    default="raise",
+    help="[raise|replace|pass] actions if table config files already exist",
 )
 @click.pass_context
 def create_table(
@@ -209,16 +226,20 @@ def create_table(
     path,
     job_config_params,
     partitioned,
-    if_exists,
+    if_table_exists,
     force_dataset,
+    if_storage_data_exists,
+    if_table_config_exists,
 ):
 
     Table(table_id=table_id, dataset_id=dataset_id, **ctx.obj).create(
         path=path,
         job_config_params=job_config_params,
         partitioned=partitioned,
-        if_exists=if_exists,
+        if_table_exists=if_table_exists,
         force_dataset=force_dataset,
+        if_storage_data_exists=if_storage_data_exists,
+        if_table_config_exists=if_table_exists,
     )
 
     click.echo(
@@ -372,6 +393,55 @@ def upload_storage(ctx, dataset_id, table_id, filepath, mode, partitions, if_exi
             f"Data was added to `{blob_name}`",
             fg="green",
         )
+    )
+
+
+@cli_storage.command(name="delete_table", help="Delete table from bucket")
+@click.argument("dataset_id")
+@click.argument("table_id")
+@click.option(
+    "--mode",
+    "-m",
+    required=True,
+    default="staging",
+    help="[raw|staging] where to delete the file from",
+)
+@click.option(
+    "--bucket_name",
+    default=None,
+    help="Bucket from which to delete data, you can change it to delete from a bucket other than yours",
+)
+@click.option("--not_found_ok", default=False, help="what to do if table not found")
+@click.pass_context
+def storage_delete_table(ctx, dataset_id, table_id, mode, not_found_ok, bucket_name):
+    Storage(dataset_id, table_id).delete_table(
+        mode=mode, not_found_ok=not_found_ok, bucket_name=bucket_name
+    )
+
+
+@cli_storage.command(name="copy_table", help="Copy table to your bucket")
+@click.argument("dataset_id")
+@click.argument("table_id")
+@click.option("--source_bucket_name", required=True, default="basedosdados")
+@click.option(
+    "--dst_bucket_name",
+    default=None,
+    help="Bucket where data will be copied to, defaults to your bucket",
+)
+@click.option(
+    "--mode",
+    "-m",
+    default="staging",
+    help="[raw|staging] which bucket folder to get the table",
+)
+@click.pass_context
+def storage_copy_table(
+    ctx, dataset_id, table_id, source_bucket_name, dst_bucket_name, mode
+):
+    Storage(dataset_id, table_id).copy_table(
+        source_bucket_name=source_bucket_name,
+        destination_bucket_name=dst_bucket_name,
+        mode=mode,
     )
 
 
